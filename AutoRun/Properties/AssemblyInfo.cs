@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("开机自动运行小工具")]
-[assembly: AssemblyDescription("自己研发的小工具")]
+[assembly: AssemblyDescription("自研发的小工具")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("奇思妙想工作室")]
 [assembly: AssemblyProduct("小工具")]

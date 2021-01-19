@@ -17,17 +17,17 @@ namespace AutoRun
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            int interval = 1000;
+            // 默认一个小时检测一次，且不允许低于1s
+            int interval = 3600000;
             if (args != null && args.Length > 0)
             {
                 try
                 {
                     interval = Convert.ToInt32(args[0]);
                 }
-                catch (Exception)
-                {
-                }
+                catch (Exception) { }
             }
+            interval = interval < 1000 ? 3600000 : interval;
 
             ThreadParameterCollection collection = new ThreadParameterCollection();
 
