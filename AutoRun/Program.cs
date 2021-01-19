@@ -1,0 +1,46 @@
+﻿using AutoRun.Model;
+using AutoRun.Service;
+using System;
+using System.Threading;
+using System.Windows.Forms;
+
+namespace AutoRun
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Console.Title = "WAHAHA";
+            // IntPtr intptr = FindWindow("ConsoleWindowClass", "WAHAHA");
+            // if (intptr != IntPtr.Zero) ShowWindow(intptr, 0);//隐藏这个窗口
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            int interval = 1000;
+            if (args != null && args.Length > 0)
+            {
+                try
+                {
+                    interval = Convert.ToInt32(args[0]);
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            ThreadParameterCollection collection = new ThreadParameterCollection();
+
+            // 关闭系统自动更新服务
+            collection.Add(WindowUpdateService.stop, interval, "WindowUpdateService");
+
+            // 关闭 BeyondCompare4 的授权检测
+            collection.Add(BeyondCompare4.detect, 86400000, "BeyondCompare4");
+
+            Console.WriteLine("I`m main thread begin");
+            WaitHandle.WaitAll(collection.Handles);
+            Console.WriteLine("I`m main thread finish");
+        }
+
+    }
+}
