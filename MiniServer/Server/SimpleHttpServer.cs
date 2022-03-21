@@ -405,7 +405,8 @@ namespace MiniServer.Server
         {
             get
             {
-                return this.workspace;
+                DirectoryInfo dir = new DirectoryInfo(string.IsNullOrEmpty(this.workspace) ? "." : this.workspace);
+                return dir.FullName;
             }
             set
             {
@@ -468,7 +469,7 @@ namespace MiniServer.Server
         /// <returns></returns>
         private string GetCurrentDirectoryPathByRawUri(string uri)
         {
-            DirectoryInfo dir = new DirectoryInfo(string.IsNullOrEmpty(this.workspace) ? "." : this.workspace);
+            DirectoryInfo dir = new DirectoryInfo(this.Workspace);
             if (!dir.Exists)
             {
                 dir = new DirectoryInfo(Directory.GetCurrentDirectory());
@@ -697,6 +698,7 @@ namespace MiniServer.Server
 
             listener.Start();
             Print(SimpleHttpMessageEventType.Info, "Server is working at : " + this.Prefixes);
+            Print(SimpleHttpMessageEventType.Info, "Server`workspace at : " + this.Workspace);
             Task task = Task.Factory.StartNew(this.HandleRequest);
             //task.Wait();
         }
