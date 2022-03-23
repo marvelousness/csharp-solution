@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MiniServer.Server;
+using MiniServer.Server.Event;
 
 namespace MiniServer
 {
@@ -30,24 +31,30 @@ namespace MiniServer
         {
             InitializeComponent();
             this.server = new SimpleHttpServer();
-            this.server.OnMessage += Server_Message;
+            this.server.OnMessage += Server_OnMessage;
+            this.server.OnRequest += Server_OnRequest;
         }
 
-        private void Server_Message(object sender, SimpleHttpMessageEvent e)
+        private void Server_OnRequest(object sender, RequestEventArgs e)
         {
-            this.Invoke(new Action<SimpleHttpMessageEvent>(x =>
+            throw new NotImplementedException();
+        }
+
+        private void Server_OnMessage(object sender, MessageEventArgs e)
+        {
+            this.Invoke(new Action<MessageEventArgs>(x =>
             {
                 int sindex = this.rinfo.Text.Length;
-                int length = e.message.Length;
-                this.rinfo.AppendText(e.message);
+                int length = e.Info.Length;
+                this.rinfo.AppendText(e.Info);
                 this.rinfo.SelectionStart = sindex;
                 this.rinfo.SelectionLength = length;
                 switch (e.Type)
                 {
-                    case SimpleHttpMessageEventType.Warn:
+                    case EventType.Warn:
                         this.rinfo.SelectionColor = Color.Brown;
                         break;
-                    case SimpleHttpMessageEventType.Error:
+                    case EventType.Error:
                         this.rinfo.SelectionColor = Color.Red;
                         break;
                     default:
@@ -66,7 +73,12 @@ namespace MiniServer
 
         private void csMenuAbout_Click(object sender, EventArgs e)
         {
-            new AboutForm().ShowDialog(this);
+            AboutForm form = new AboutForm();
+            if (this.WindowState != FormWindowState.Normal)
+            {
+                form.StartPosition = FormStartPosition.CenterScreen;
+            }
+            form.ShowDialog(this);
         }
 
         private void rinfo_LinkClicked(object sender, LinkClickedEventArgs e)
@@ -100,14 +112,14 @@ namespace MiniServer
             this.notifyIcon.Visible = false;
         }
 
-        private void csMenuSetWorkspace_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void csMenuSetPort_Click(object sender, EventArgs e)
         {
             ChangePortForm form = new ChangePortForm(this.port);
+            if (this.WindowState != FormWindowState.Normal) 
+            {
+                form.StartPosition = FormStartPosition.CenterScreen;
+            }
             if (DialogResult.OK == form.ShowDialog(this))
             {
                 this.port = form.Port;

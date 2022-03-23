@@ -1,55 +1,101 @@
-﻿using System;
+﻿using MiniServer.Server.Event;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
 namespace MiniServer.Server
 {
-    /// <summary>
-    /// 事件类型
-    /// </summary>
-    enum SimpleHttpMessageEventType
-    {
-        /// <summary>
-        /// 信息
-        /// </summary>
-        Info,
-        /// <summary>
-        /// 警告
-        /// </summary>
-        Warn,
-        /// <summary>
-        /// 错误
-        /// </summary>
-        Error
-    }
-    /// <summary>
-    /// 消息转换
-    /// </summary>
-    class SimpleHttpMessageEvent
+    namespace Event
     {
         /// <summary>
         /// 事件类型
         /// </summary>
-        public SimpleHttpMessageEventType Type;
+        enum EventType
+        {
+            /// <summary>
+            /// 信息
+            /// </summary>
+            Info,
+            /// <summary>
+            /// 警告
+            /// </summary>
+            Warn,
+            /// <summary>
+            /// 错误
+            /// </summary>
+            Error
+        }
+
         /// <summary>
-        /// 事件消息
+        /// 消息事件参数
         /// </summary>
-        public string message;
+        class MessageEventArgs
+        {
+            /// <summary>
+            /// 事件类型
+            /// </summary>
+            public EventType Type;
+            /// <summary>
+            /// 事件消息
+            /// </summary>
+            public string Info;
+        }
+
+        /// <summary>
+        /// 请求事件参数
+        /// </summary>
+        class RequestEventArgs
+        {
+            public RequestEventArgs(string uri, string method, HttpListenerRequest request, HttpListenerResponse response)
+            {
+                RequestUri = uri;
+                RequestMethod = method;
+                Request = request;
+                Response = response;
+            }
+            /// <summary>
+            /// 请求地址
+            /// </summary>
+            public string RequestUri { get; }
+            /// <summary>
+            /// 请求方法
+            /// </summary>
+            public string RequestMethod { get; }
+            /// <summary>
+            /// 请求对象
+            /// </summary>
+            public HttpListenerRequest Request { get; }
+            /// <summary>
+            /// 响应对象
+            /// </summary>
+            public HttpListenerResponse Response { get; }
+            /// <summary>
+            /// 表示该事件已经处理
+            /// </summary>
+            public bool Handled { get; set; }
+        }
+
     }
 
     /// <summary>
     /// 声明一个用于传递消息的事件委托
     /// </summary>
-    /// <param name="sender">时间发送对象</param>
-    /// <param name="message">发送的文本消息</param>
-    delegate void SimpleHttpMessage(object sender, SimpleHttpMessageEvent e);
+    /// <param name="sender">事件发送对象</param>
+    /// <param name="e">消息事件对象</param>
+    delegate void SimpleHttpMessage(object sender, MessageEventArgs e);
+
+    /// <summary>
+    /// 声明一个用于处理请求的事件委托
+    /// </summary>
+    /// <param name="sender">事件发送对象</param>
+    /// <param name="e">请求事件对象</param>
+    delegate void SimpleHttpRequest(object sender, RequestEventArgs e);
 
     /// <summary>
     /// 简单的 HTTP 服务
@@ -59,9 +105,17 @@ namespace MiniServer.Server
         private int port;
         private bool enableCSRF;
         private string workspace;
-        public event SimpleHttpMessage OnMessage;
-        private HttpListener listener = new HttpListener();
+        private readonly HttpListener listener = new HttpListener();
         private readonly Dictionary<string, string> HttpContentType = new Dictionary<string, string>();
+
+        /// <summary>
+        /// 消息事件
+        /// </summary>
+        public event SimpleHttpMessage OnMessage;
+        /// <summary>
+        /// 请求事件
+        /// </summary>
+        public event SimpleHttpRequest OnRequest;
 
         public SimpleHttpServer()
         {
@@ -94,7 +148,7 @@ namespace MiniServer.Server
             HttpContentType.Add(".dwf", "application/x-dwf");
             HttpContentType.Add(".dxb", "application/x-dxb");
             HttpContentType.Add(".edn", "application/vnd.adobe.edn");
-            HttpContentType.Add(".eml", "message/rfc822");
+            HttpContentType.Add(".eml", "Info/rfc822");
             HttpContentType.Add(".epi", "application/x-epi");
             HttpContentType.Add(".eps", "application/postscript");
             HttpContentType.Add(".exe", "application/x-msdownload");
@@ -130,7 +184,7 @@ namespace MiniServer.Server
             HttpContentType.Add(".math", "text/xml;charset=utf-8");
             HttpContentType.Add(".md", "text/plain;charset=utf-8");
             HttpContentType.Add(".mdb", "application/x-mdb");
-            HttpContentType.Add(".mht", "message/rfc822");
+            HttpContentType.Add(".mht", "Info/rfc822");
             HttpContentType.Add(".mi", "application/x-mi");
             HttpContentType.Add(".midi", "audio/mid");
             HttpContentType.Add(".mml", "text/xml;charset=utf-8");
@@ -292,7 +346,7 @@ namespace MiniServer.Server
             HttpContentType.Add(".m4e", "video/mpeg4");
             HttpContentType.Add(".man", "application/x-troff-man");
             HttpContentType.Add(".mfp", "application/x-shockwave-flash");
-            HttpContentType.Add(".mhtml", "message/rfc822");
+            HttpContentType.Add(".mhtml", "Info/rfc822");
             HttpContentType.Add(".mid", "audio/mid");
             HttpContentType.Add(".mil", "application/x-mil");
             HttpContentType.Add(".mnd", "audio/x-musicnet-download");
@@ -308,7 +362,7 @@ namespace MiniServer.Server
             HttpContentType.Add(".mpw", "application/vnd.ms-project");
             HttpContentType.Add(".mtx", "text/xml;charset=utf-8");
             HttpContentType.Add(".net", "image/pnetvue");
-            HttpContentType.Add(".nws", "message/rfc822");
+            HttpContentType.Add(".nws", "Info/rfc822");
             HttpContentType.Add(".out", "application/x-out");
             HttpContentType.Add(".p12", "application/x-pkcs12");
             HttpContentType.Add(".p7c", "application/pkcs7-mime");
@@ -399,6 +453,10 @@ namespace MiniServer.Server
         /// </summary>
         public int Port { get => port; set => port = value; }
         /// <summary>
+        /// 服务网址的前缀
+        /// </summary>
+        public string Prefixes { get => string.Join("", this.listener.Prefixes.AsEnumerable()); }
+        /// <summary>
         /// 工作目录
         /// </summary>
         public string Workspace
@@ -410,14 +468,10 @@ namespace MiniServer.Server
             }
             set
             {
-                Print(SimpleHttpMessageEventType.Warn, "Switch workspace to : " + value);
+                Print(EventType.Warn, "Switch workspace to : " + value);
                 workspace = value;
             }
         }
-        /// <summary>
-        /// 服务网址的前缀
-        /// </summary>
-        public string Prefixes { get => string.Join("", this.listener.Prefixes.AsEnumerable()); }
 
         /// <summary>
         /// 获取默认的 DOM 文本
@@ -452,14 +506,14 @@ namespace MiniServer.Server
         /// </summary>
         /// <param name="type">打印类型</param>
         /// <param name="vs">需要打印的信息的内容</param>
-        private void Print(SimpleHttpMessageEventType type, params object[] vs)
+        private void Print(EventType type, params object[] vs)
         {
             IEnumerable<string> strs = vs.Select(v => v != null ? v.ToString() : "");
             string info = "[" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff") + "] ";
             info += string.Join(" ", strs) + "\n";
-            SimpleHttpMessageEvent e = new SimpleHttpMessageEvent();
+            MessageEventArgs e = new MessageEventArgs();
             e.Type = type;
-            e.message = info;
+            e.Info = info;
             OnMessage(this, e);
         }
         /// <summary>
@@ -561,12 +615,43 @@ namespace MiniServer.Server
                 string method = request.HttpMethod;
                 string uri = HttpUtility.UrlDecode(request.Url.AbsolutePath);
                 string info = string.Format("[{0}] {1}", method, uri);
-                Print(SimpleHttpMessageEventType.Info, info);
+                Print(EventType.Info, info);
 
                 string path = GetCurrentDirectoryPathByRawUri(uri);
 
                 HttpListenerResponse response = context.Response;
                 response.ContentEncoding = Encoding.UTF8;
+
+                if (this.OnRequest != null)
+                {
+                    // 判断是否已经实现了处理请求的方法
+                    bool isImplemented = true;
+                    RequestEventArgs args = new RequestEventArgs(uri, method, request, response);
+                    try
+                    {
+                        this.OnRequest(this, args);
+                    }
+                    catch (Exception e)
+                    {
+                        isImplemented = !(e is NotImplementedException);
+                        if (isImplemented)
+                        {
+                            // 如果已经实现了该事件的处理，则出现错误后处理为 500
+                            response.StatusCode = 500;
+                            using (StreamWriter swriter = new StreamWriter(response.OutputStream))
+                            {
+                                // 处理为 500
+                                swriter.WriteLine(getDefaultDomString(500, "Server Error", e.Message));
+                            }
+                            continue;
+                        }
+                    }
+                    if (isImplemented && args.Handled)
+                    {
+                        // 如果外部已经实现，并且已经处理，则不执行后续的默认处理过程
+                        continue;
+                    }
+                }
 
                 // 如果是目录，则查找默认的首页页面
                 if (Directory.Exists(path))
@@ -616,7 +701,7 @@ namespace MiniServer.Server
                                     double proc = (double)length / reader.Length;
 
                                     info = string.Format("[{0}] [↓ {1:F2}%] {2}", method, proc * 100, uri);
-                                    Print(SimpleHttpMessageEventType.Info, info);
+                                    Print(EventType.Info, info);
                                 }
                             }
                         }
@@ -626,10 +711,10 @@ namespace MiniServer.Server
                         }
                         if (!string.IsNullOrEmpty(error))
                         {
+                            // 存在错误信息，极有可能是因为读取的时候出现异常，处理为服务器异常即可
                             response.StatusCode = 500;
                             using (StreamWriter swriter = new StreamWriter(writer))
                             {
-                                // 处理为 500
                                 swriter.WriteLine(getDefaultDomString(500, "Server Error", error));
                             }
                         }
@@ -646,8 +731,8 @@ namespace MiniServer.Server
                         }
                         else
                         {
+                            // 请求路径不是目录，则处理为找不到页面
                             response.StatusCode = 404;
-                            // 处理为 404
                             writer.WriteLine(getDefaultDomString(404, "Not Found"));
                         }
                     }
@@ -688,7 +773,7 @@ namespace MiniServer.Server
 
             if (PortIsUsed(port))
             {
-                Print(SimpleHttpMessageEventType.Error, "Port " + port + " is already occupied!");
+                Print(EventType.Error, "Port " + port + " is already occupied!");
                 return;
             }
 
@@ -697,8 +782,8 @@ namespace MiniServer.Server
             this.port = port;
 
             listener.Start();
-            Print(SimpleHttpMessageEventType.Info, "Server is working at : " + this.Prefixes);
-            Print(SimpleHttpMessageEventType.Info, "Server`workspace at : " + this.Workspace);
+            Print(EventType.Info, "Server is working at : " + this.Prefixes);
+            Print(EventType.Info, "Server`workspace at : " + this.Workspace);
             Task task = Task.Factory.StartNew(this.HandleRequest);
             //task.Wait();
         }
@@ -710,7 +795,7 @@ namespace MiniServer.Server
             if (listener.IsListening)
             {
                 listener.Stop();
-                Print(SimpleHttpMessageEventType.Warn, "Server is stopped at : " + this.Port);
+                Print(EventType.Warn, "Server is stopped at : " + this.Port);
             }
         }
     }
