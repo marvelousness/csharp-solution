@@ -52,7 +52,7 @@ namespace MiniServer
                 switch (e.Type)
                 {
                     case EventType.Warn:
-                        this.rinfo.SelectionColor = Color.Brown;
+                        this.rinfo.SelectionColor = Color.Orange;
                         break;
                     case EventType.Error:
                         this.rinfo.SelectionColor = Color.Red;
