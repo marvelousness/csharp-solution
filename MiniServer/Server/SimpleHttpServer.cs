@@ -105,7 +105,7 @@ namespace MiniServer.Server
         private int port;
         private bool enableCSRF;
         private string workspace;
-        private readonly HttpListener listener = new HttpListener();
+        private HttpListener listener = new HttpListener();
         private readonly Dictionary<string, string> HttpContentType = new Dictionary<string, string>();
 
         /// <summary>
@@ -764,7 +764,9 @@ namespace MiniServer.Server
         /// <summary>
         /// 开启服务
         /// </summary>
-        public void Start(int port = 9090)
+        /// <param name="port">端口号</param>
+        /// <param name="host">主机名称</param>
+        public void Start(int port = 9090, string host = "localhost")
         {
             if (listener.IsListening)
             {
@@ -777,11 +779,23 @@ namespace MiniServer.Server
                 return;
             }
 
+            string prefixes = "http://" + host + ":" + port + "/";
+
             listener.Prefixes.Clear();
-            listener.Prefixes.Add("http://localhost:" + port + "/");
+            listener.Prefixes.Add(prefixes);
             this.port = port;
 
-            listener.Start();
+            try
+            {
+                listener.Start();
+            }
+            catch (Exception e)
+            {
+                Print(EventType.Error, "Unable to listen on the IP and port : " + prefixes + ", error message is: " + e.Message);
+                // 报错后，listener 会被释放，重新实例化，使其可以能再次被启动
+                listener = new HttpListener();
+                return;
+            }
             Print(EventType.Info, "Server is working at : " + this.Prefixes);
             Print(EventType.Info, "Server`workspace at : " + this.Workspace);
             Task task = Task.Factory.StartNew(this.HandleRequest);

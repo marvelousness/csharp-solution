@@ -41,6 +41,7 @@ namespace MiniServer
             this.csMenuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.csMenuSetIp = new System.Windows.Forms.ToolStripMenuItem();
             this.cMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -74,6 +75,7 @@ namespace MiniServer
             // 
             this.csMenuSet.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.csMenuSetPort,
+            this.csMenuSetIp,
             this.csMenuSetWorkspace,
             this.csMenuCSRF});
             this.csMenuSet.Name = "csMenuSet";
@@ -125,6 +127,13 @@ namespace MiniServer
             this.notifyIcon.Text = "迷你服务器";
             this.notifyIcon.DoubleClick += new System.EventHandler(this.notifyIcon_DoubleClick);
             // 
+            // csMenuSetIp
+            // 
+            this.csMenuSetIp.Name = "csMenuSetIp";
+            this.csMenuSetIp.Size = new System.Drawing.Size(270, 34);
+            this.csMenuSetIp.Text = "主机地址(&I)";
+            this.csMenuSetIp.Click += new System.EventHandler(this.csMenuSetIp_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
@@ -154,6 +163,7 @@ namespace MiniServer
         private System.Windows.Forms.ToolStripMenuItem csMenuSetWorkspace;
         private System.Windows.Forms.ToolStripMenuItem csMenuCSRF;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+        private System.Windows.Forms.ToolStripMenuItem csMenuSetIp;
     }
 }
 

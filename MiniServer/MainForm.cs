@@ -18,6 +18,7 @@ namespace MiniServer
     public partial class MainForm : Form
     {
         private int port = 9090;
+        private string ip = "localhost";
         /// <summary>
         /// 服务器对象
         /// </summary>
@@ -68,7 +69,7 @@ namespace MiniServer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            this.server.Start(this.port);
+            this.server.Start(this.port, this.ip);
         }
 
         private void csMenuAbout_Click(object sender, EventArgs e)
@@ -124,7 +125,22 @@ namespace MiniServer
             {
                 this.port = form.Port;
                 this.server.Stop();
-                this.server.Start(this.port);
+                this.server.Start(this.port, this.ip);
+            }
+        }
+
+        private void csMenuSetIp_Click(object sender, EventArgs e)
+        {
+            ChangeIpForm form = new ChangeIpForm(this.ip);
+            if (this.WindowState != FormWindowState.Normal)
+            {
+                form.StartPosition = FormStartPosition.CenterScreen;
+            }
+            if (DialogResult.OK == form.ShowDialog(this))
+            {
+                this.ip = form.Ip;
+                this.server.Stop();
+                this.server.Start(this.port, this.ip);
             }
         }
 
@@ -141,5 +157,6 @@ namespace MiniServer
             this.rinfo.AppendText("This function is not open yet!\n");
             this.server.EnableCSRF = true;
         }
+
     }
 }

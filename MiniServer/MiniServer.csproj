@@ -46,6 +46,7 @@
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AboutForm.cs">
@@ -53,6 +54,12 @@
     </Compile>
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ChangeIpForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChangeIpForm.Designer.cs">
+      <DependentUpon>ChangeIpForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ChangePortForm.cs">
       <SubType>Form</SubType>
@@ -71,6 +78,9 @@
     <Compile Include="Server\SimpleHttpServer.cs" />
     <EmbeddedResource Include="AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChangeIpForm.resx">
+      <DependentUpon>ChangeIpForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ChangePortForm.resx">
       <DependentUpon>ChangePortForm.cs</DependentUpon>
