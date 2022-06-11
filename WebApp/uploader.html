@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <style>
+        #FileUploader, #Btn {
+            display: none;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .container .uploader {
+            width: 120px;
+        }
+
+        .container .uploader label span {
+            display: block;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            background-color: #ECECEC;
+            border: 1px solid #CCC;
+        }
+
+        .container #LabelTips {
+            height: 20px;
+            line-height: 20px;
+            color: #CCC;
+        }
+
+        .container img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+    <div class="container">
+        <div class="uploader">
+            <label>
+                <span>上传</span>
+                <input type="file" id="FileUploader" />
+                <button id="Btn"></button>
+            </label>
+            <span id="LabelTips"></span>
+        </div>
+        <img src="" id="Img" />
+    </div>
+    <script src="statics/js/jquery-3.5.1.min.js"></script>
+    <script>
+        FileUploader.onchange = function () {
+            let files = FileUploader.files;
+            if (!(files && files.length > 0)) {
+                LabelTips.innerText = "请选择图片";
+                return;
+            }
+            let fd = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                fd.append('file' + i, files[i]);
+            }
+
+            $.ajax({
+                url: "/uploader",
+                method: "POST",
+                // 不设置内容类型
+                contentType: false,
+                // 不需要 Ajax 来处理数据
+                processData: false,
+                data: fd,
+                success(response) {
+                    if (response) {
+                        if (response instanceof Array) {
+                            console.log(response);
+                        } else {
+                            Img.src = response;
+                        }
+                        LabelTips.innerText = "上传成功";
+                    } else {
+                        LabelTips.innerText = "上传失败";
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniServer", "MiniServer\Mi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{D24E7B8C-2FE8-4E9B-A4A0-F3BE3C576724}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.csproj", "{FB3FD852-B2B5-4593-9288-6EC88AFBF613}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{D24E7B8C-2FE8-4E9B-A4A0-F3BE3C576724}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D24E7B8C-2FE8-4E9B-A4A0-F3BE3C576724}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D24E7B8C-2FE8-4E9B-A4A0-F3BE3C576724}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB3FD852-B2B5-4593-9288-6EC88AFBF613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB3FD852-B2B5-4593-9288-6EC88AFBF613}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB3FD852-B2B5-4593-9288-6EC88AFBF613}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB3FD852-B2B5-4593-9288-6EC88AFBF613}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

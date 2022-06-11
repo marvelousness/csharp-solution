@@ -1,0 +1,28 @@
+﻿h1 {
+    text-align: center;
+}
+
+.container {
+    width: 800px;
+    margin: 20px auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+.container .form {
+    padding: 10px;
+    width: calc(48% - 20px);
+    background-color: #ECECEC;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    box-shadow: 5px 5px #CCC;
+}
+
+.container .form > div {
+    height: 40px;
+    line-height: 40px;
+}
+
+.container .form > .aspNetHidden {
+    height: 0px
+}
